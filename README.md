@@ -1,60 +1,67 @@
 # World Layoffs Analysis (2020–2026) — MySQL
 
-**Tool:** MySQL (MySQL Workbench)  
-**Dataset:** World Layoffs 2020–2026 — 4,342 records across global companies  
-**Domain:** Business / Workforce Analytics  
-**SQL Concepts:** SELECT · GROUP BY · JOIN · Subqueries · CTEs · Window Functions (DENSE_RANK, SUM OVER)  
+**Tool:** MySQL (MySQL Workbench)
+**Dataset:** World Layoffs 2020–2026 — 4,342 records
+**Domain:** Business / Workforce Analytics
 **Status:** Completed
+
+---
+
+## Files in this Repository
+
+| File | What it contains |
+|---|---|
+| `01_create_database.sql` | Creates the database and table |
+| `02_data_cleaning.sql` | All data cleaning steps |
+| `03_analysis_queries.sql` | All 12 analysis queries (Q1–Q12) |
+| `q10_rolling_total.png` | Screenshot — rolling cumulative layoffs (CTE + Window function) |
+| `q11_top5_per_year.png` | Screenshot — top 5 companies per year (DENSE_RANK) |
+| `layoffs.csv` | Raw dataset |
 
 ---
 
 ## Project Overview
 
-This project analyzes global corporate layoffs from March 2020 to March 2026 — covering the COVID-19 period, the post-funding-boom correction of 2022–2023, and continued workforce restructuring through 2025. Using pure SQL in MySQL Workbench, the analysis covers data cleaning, exploratory queries, trend analysis, and advanced window function techniques across 12 structured business questions.
+This project analyzes global corporate layoffs from March 2020 to March 2026 using pure SQL. It covers the COVID-19 period, the post-funding-boom correction of 2022–2023, and continued workforce restructuring through 2025.
 
-The project demonstrates a complete analyst workflow in SQL alone: raw data → staging → cleaning → structured analysis → actionable insights.
+The workflow: raw data → staging table → cleaning → 12 analysis queries → business insights.
 
 ---
 
-## Dataset Description
+## SQL Concepts Used
+
+- SELECT, WHERE, GROUP BY, ORDER BY, LIMIT
+- SUM, AVG, COUNT, ROUND, MIN, MAX
+- DATE_FORMAT, YEAR (date functions)
+- JOIN with inline subquery
+- CTE (WITH clause)
+- Window functions — SUM OVER, DENSE_RANK, PARTITION BY
+
+---
+
+## Dataset Columns
 
 | Column | Description |
 |---|---|
 | `company` | Company name |
 | `location` | City |
 | `industry` | Business sector |
-| `total_laid_off` | Employees laid off in the event |
-| `percentage_laid_off` | Proportion of total workforce cut |
+| `total_laid_off` | Number of employees laid off |
+| `percentage_laid_off` | Share of workforce cut |
 | `date` | Date of layoff event |
-| `stage` | Funding stage (Series A–H, Post-IPO, etc.) |
+| `stage` | Funding stage (Series A, Post-IPO, etc.) |
 | `country` | Country |
-| `funds_raised` | Total funding raised (USD millions) |
-
-**Source:** Kaggle — World Layoffs Dataset  
-**Raw records:** 4,342 | **Records after cleaning:** ~2,842 (null-only rows removed)
+| `funds_raised` | Total funding raised in USD millions |
 
 ---
 
-## SQL Techniques Demonstrated
+## Key Findings
 
-| Level | Technique | Query |
-|---|---|---|
-| Basic | SELECT, WHERE, ORDER BY, LIMIT | Q1, Q2, Q3 |
-| Intermediate | GROUP BY, SUM, AVG, COUNT, ROUND | Q4, Q5, Q6, Q7 |
-| Date functions | DATE_FORMAT, YEAR, MIN, MAX | Q8, Q9 |
-| Advanced | CTE + Window SUM OVER (rolling total) | Q10 |
-| Advanced | CTE + DENSE_RANK + PARTITION BY (yearly ranking) | Q11 |
-| Advanced | JOIN with inline subquery (industry benchmark) | Q12 |
+**874,980 employees** were laid off globally across 4,342 recorded events from 2020 to 2026.
 
----
+### Layoffs by Year
 
-## Key Findings and Actionable Insights
-
-### 1. Scale: 874,980 employees laid off globally
-Nearly **875,000 jobs** were eliminated across 4,342 recorded events from March 2020 to March 2026. This is not a rounding error — it represents a structural shift in how companies manage headcount during periods of economic uncertainty.
-
-### 2. The layoff wave peaked in 2023, not 2022
-| Year | Total Layoffs | Events |
+| Year | Total Laid Off | Events |
 |---|---|---|
 | 2020 | 29,190 | 201 |
 | 2021 | 9,631 | 13 |
@@ -62,112 +69,88 @@ Nearly **875,000 jobs** were eliminated across 4,342 recorded events from March 
 | 2023 | 93,807 | 362 |
 | 2024 | 67,618 | 186 |
 | 2025 | 45,296 | 106 |
-| 2026 | 5,250 | 24 (partial year) |
+| 2026 | 5,250 | 24 (partial) |
 
-**Insight:** 2021 was deceptively calm — only 13 recorded events. Companies were still riding pandemic-era digital spending. The correction hit hard in 2022 and peaked in 2023. The trend is tapering but has not stopped — 2024 and 2025 still show tens of thousands of job cuts.
+2023 was the worst year — not 2022. 2021 was deceptively calm with only 13 recorded events.
 
-### 3. Amazon, Intel, Oracle dominate individual company layoffs
-| Rank | Company | Total Laid Off |
+### Top 10 Companies by Total Layoffs
+
+| Company | Total Laid Off |
+|---|---|
+| Amazon | 58,124 |
+| Intel | 43,115 |
+| Oracle | 31,294 |
+| Microsoft | 30,055 |
+| Meta | 27,500 |
+| Salesforce | 16,525 |
+| Cisco | 14,521 |
+| Tesla | 14,500 |
+| Google | 13,697 |
+| Dell | 12,650 |
+
+These are not struggling companies — they over-hired during the 2020–2021 boom and corrected hard.
+
+### Industries Hit Hardest
+
+| Industry | Total Laid Off | Avg % Cut |
 |---|---|---|
-| 1 | Amazon | 58,124 |
-| 2 | Intel | 43,115 |
-| 3 | Oracle | 31,294 |
-| 4 | Microsoft | 30,055 |
-| 5 | Meta | 27,500 |
-| 6 | Salesforce | 16,525 |
-| 7 | Cisco | 14,521 |
-| 8 | Tesla | 14,500 |
-| 9 | Google | 13,697 |
-| 10 | Dell | 12,650 |
+| Retail | 106,076 | 23.7% |
+| Hardware | 94,957 | 9.9% |
+| Consumer | 86,870 | 23.1% |
+| Transportation | 66,002 | 23.7% |
+| Finance | 58,634 | 21.5% |
+| Food | 51,998 | 28.8% |
+| Healthcare | 38,904 | 28.6% |
 
-**Insight:** These are not struggling companies — they are among the most profitable corporations in the world. The layoffs reflect over-hiring during the 2020–2021 zero-interest-rate boom, not business failure. The top 10 companies alone account for ~262,000 layoffs — 30% of the global total.
+Food and Healthcare cut deepest proportionally — structural distress, not just market adjustment.
 
-### 4. Retail and Hardware were hit hardest in absolute volume; Food and Healthcare cut deepest proportionally
-- **Retail:** 106,076 total laid off | 23.7% avg workforce cut
-- **Hardware:** 94,957 total laid off | only 9.9% avg — large absolute numbers from big companies, relatively contained proportionally
-- **Food:** 51,998 total laid off | **28.8% avg** — highest proportional cuts after Healthcare
-- **Healthcare:** 38,904 total laid off | **28.6% avg** — deep cuts relative to workforce size
+### Layoffs by Country (Top 5)
 
-**Insight:** Hardware companies cut large absolute numbers but retained most of their workforce. Food and Healthcare companies cut fewer people in total but proportionally gutted their teams — signaling deeper structural distress in those sectors.
+| Country | Total Laid Off | Events |
+|---|---|---|
+| United States | 616,044 | 1,743 |
+| India | 65,584 | 261 |
+| Germany | 31,588 | 95 |
+| United Kingdom | 23,264 | 84 |
+| Netherlands | 21,575 | 19 |
 
-### 5. The United States accounts for 70% of all recorded layoffs
-- **United States:** 616,044 layoffs across 1,743 events
-- **India:** 65,584 across 261 events (distant second)
-- **Germany:** 31,588 | **UK:** 23,264 | **Netherlands:** 21,575
+The US accounts for 70% of all recorded layoffs.
 
-**Insight:** The US dominance reflects both the concentration of global tech companies and stronger layoff disclosure norms. India's position at #2 reflects the large offshore tech workforce reductions that accompanied US company downsizing.
+### Layoffs by Funding Stage
 
-### 6. Post-IPO companies account for 62% of all layoffs
-- **Post-IPO:** 544,507 layoffs from 725 companies
-- **Series B:** 30,822 | **Series C:** 27,412 | **Series D:** 27,054
+| Stage | Total Laid Off |
+|---|---|
+| Post-IPO | 544,507 |
+| Unknown | 78,588 |
+| Acquired | 71,753 |
+| Series B | 30,822 |
+| Series C | 27,412 |
 
-**Insight:** The layoff crisis is predominantly a public company phenomenon. Post-IPO companies — which had the most capital raised and the most headcount added during the boom — made the largest absolute cuts. Series A companies (9,147 total) were the least affected, likely because they never over-hired to the same degree.
+Post-IPO companies account for 62% of all layoffs — the correction hit public companies hardest.
 
-### 7. Well-funded companies still shut down completely
-344 companies laid off 100% of their workforce. Top funded among complete shutdowns:
-- **Britishvolt** (EV battery, UK) — $2.4B raised, total shutdown
-- **Quibi** (Media, US) — $1.8B raised, shut down
-- **Fisker** (EV, US) — $1.7B raised, shut down
-- **Deliveroo Australia** — $1.7B raised, market exit
-- **Lilium** (Aerospace, Germany) — $1.4B raised, shut down
+### Well-Funded Companies That Still Shut Down
 
-**Insight:** Funding does not guarantee survival. These shutdowns demonstrate that even billion-dollar companies can fail when market conditions shift — a critical reminder for investors and employees alike.
+344 companies laid off 100% of their workforce. Top examples:
+- Britishvolt (EV, UK) — $2.4B raised, complete shutdown
+- Quibi (Media, US) — $1.8B raised, complete shutdown
+- Fisker (EV, US) — $1.7B raised, complete shutdown
 
-### 8. The rolling total shows the layoff acceleration clearly (Q10)
-The cumulative layoff count grew slowly through 2020 (reaching ~29K by year-end), stayed nearly flat through 2021, then accelerated sharply from early 2022 onward. By end of 2023 the rolling total had crossed 700,000 — the majority of the entire dataset accumulated in just two years.
-
-### 9. Year-by-year leadership changes reveal who was over-hired (Q11)
-- **2020:** Uber led (3,925) — pandemic travel collapse
-- **2021:** Katerra (2,434), Zillow (2,000) — startup failures and market pivots
-- **2022–2023:** Big Tech takes over — Amazon, Meta, Microsoft dominate rankings
-- **Pattern:** Early years show startup failures; later years show deliberate Big Tech restructuring
-
-### 10. Industry benchmarking reveals outliers within sectors (Q12)
-Companies laying off significantly above their industry average signal deeper internal issues beyond sector-wide trends. Examples: Katerra laid off 2,434 against a Construction industry average of 331 — nearly 7× the benchmark, flagging structural business failure rather than market conditions.
-
----
-
-## Data Cleaning Steps
-
-All cleaning performed on `layoffs_staging` (raw table preserved):
-1. Trimmed whitespace from all text columns using `TRIM()`
-2. Fixed country name inconsistencies (`"United States."` → `"United States"`)
-3. Filled missing industry values by matching same company's other rows using self-JOIN
-4. Removed rows where both `total_laid_off` and `percentage_laid_off` are NULL — no analytical value
-
----
-
-## File Structure
-
-```
-world-layoffs-sql/
-├── layoffs.csv                        # Original dataset
-├── sql/
-│   ├── 01_create_database.sql         # DB + table creation
-│   ├── 02_data_cleaning.sql           # All 4 cleaning steps
-│   └── 03_analysis_queries.sql        # All 12 analysis queries (Q1–Q12)
-├── screenshots/
-│   ├── q10_rolling_total.png          # CTE + window function result
-│   └── q11_top5_per_year.png          # DENSE_RANK + PARTITION BY result
-└── README.md
-```
+Funding does not guarantee survival.
 
 ---
 
 ## How to Run
 
 1. Install MySQL Community Server and MySQL Workbench (free at dev.mysql.com)
-2. Open Workbench and connect to your local MySQL instance
-3. Run `01_create_database.sql` to create the database and raw table
-4. Import `layoffs.csv` into `layoffs_raw` using the provided Python import script
-5. Run `02_data_cleaning.sql` to create and clean the staging table
-6. Run `03_analysis_queries.sql` to execute all 12 analysis queries
+2. Open Workbench and connect to your local instance
+3. Run 01_create_database.sql to create the database and table
+4. Import layoffs.csv into layoffs_raw
+5. Run 02_data_cleaning.sql to clean the data
+6. Run 03_analysis_queries.sql to see all 12 query results
 
 ---
 
 ## Author
 
-**Salahuddin K M** — Data Analyst  
-Portfolio: [erskm.github.io](https://erskm.github.io) | GitHub: [github.com/ErSKM](https://github.com/ErSKM)
-
-*Project 2 of 4 in the multi-tool Data Analytics Portfolio (Excel → MySQL → Power BI → Tableau)*
+**Salahuddin K M** — Data Analyst
+Portfolio: erskm.github.io | GitHub: github.com/ErSKM
