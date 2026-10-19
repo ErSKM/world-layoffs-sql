@@ -1,157 +1,57 @@
 # World Layoffs Analysis (2020–2026) — MySQL
 
-**Tool:** MySQL (MySQL Workbench)
-**Dataset:** World Layoffs 2020–2026 — 4,342 records
-**Domain:** Business / Workforce Analytics
-**Status:** Completed
+A SQL analysis of company layoff records using data cleaning, aggregations, common table expressions, and window functions.
 
----
+## Project at a glance
 
-## Files in this Repository
+- **Database:** MySQL
+- **Dataset:** 4,342 records in the included snapshot
+- **Period represented:** March 2020–March 2026; 2026 is partial
+- **Analysis:** 12 queries covering trends by year, company, industry, country, and funding stage
 
-| File | What it contains |
+This is a descriptive analysis of the records in `layoffs.csv`. It does not establish why a company made a layoff decision, and the partial 2026 data should not be compared as a complete year.
+
+## Repository contents
+
+| File | Purpose |
 |---|---|
-| `01_create_database.sql` | Creates the database and table |
-| `02_data_cleaning.sql` | All data cleaning steps |
-| `03_analysis_queries.sql` | All 12 analysis queries (Q1–Q12) |
-| `q10_rolling_total.png` | Screenshot — rolling cumulative layoffs (CTE + Window function) |
-| `q11_top5_per_year.png` | Screenshot — top 5 companies per year (DENSE_RANK) |
-| `layoffs.csv` | Raw dataset |
+| `01_create_database.sql` | Creates the database and raw table |
+| `02_data_cleaning.sql` | Cleans the data and prepares the analysis table |
+| `03_analysis_queries.sql` | Runs the 12 analysis queries |
+| `layoffs.csv` | Dataset snapshot used in the project |
+| `q10_rolling_total.png` | Rolling total query result |
+| `q11_top5_per_year.png` | Yearly company ranking query result |
 
----
+## Questions explored
 
-## Project Overview
+- How do recorded layoffs change by month and year?
+- Which companies and industries have the largest recorded totals?
+- How do totals vary by country and company funding stage?
+- Which companies rank highest within each year?
+- How does the cumulative total change over time?
 
-This project analyzes global corporate layoffs from March 2020 to March 2026 using pure SQL. It covers the COVID-19 period, the post-funding-boom correction of 2022–2023, and continued workforce restructuring through 2025.
+## SQL skills demonstrated
 
-The workflow: raw data → staging table → cleaning → 12 analysis queries → business insights.
+- Filtering, grouping, sorting, and aggregate functions
+- Date extraction and formatting
+- Subqueries and joins
+- Common table expressions
+- Window functions, including cumulative sums and `DENSE_RANK`
 
----
+## Selected findings
 
-## SQL Concepts Used
+The included snapshot records **874,980 layoffs across 4,342 events**. It records 93,807 layoffs in 2023, the highest annual total among the listed complete years. These figures describe this dataset snapshot; they should not be interpreted as a complete census of layoffs.
 
-- SELECT, WHERE, GROUP BY, ORDER BY, LIMIT
-- SUM, AVG, COUNT, ROUND, MIN, MAX
-- DATE_FORMAT, YEAR (date functions)
-- JOIN with inline subquery
-- CTE (WITH clause)
-- Window functions — SUM OVER, DENSE_RANK, PARTITION BY
+The project also compares totals by company, industry, country, and funding stage. Those descriptive comparisons do not by themselves show causes or business health.
 
----
+## Run the analysis
 
-## Dataset Columns
-
-| Column | Description |
-|---|---|
-| `company` | Company name |
-| `location` | City |
-| `industry` | Business sector |
-| `total_laid_off` | Number of employees laid off |
-| `percentage_laid_off` | Share of workforce cut |
-| `date` | Date of layoff event |
-| `stage` | Funding stage (Series A, Post-IPO, etc.) |
-| `country` | Country |
-| `funds_raised` | Total funding raised in USD millions |
-
----
-
-## Key Findings
-
-**874,980 employees** were laid off globally across 4,342 recorded events from 2020 to 2026.
-
-### Layoffs by Year
-
-| Year | Total Laid Off | Events |
-|---|---|---|
-| 2020 | 29,190 | 201 |
-| 2021 | 9,631 | 13 |
-| 2022 | 82,211 | 350 |
-| 2023 | 93,807 | 362 |
-| 2024 | 67,618 | 186 |
-| 2025 | 45,296 | 106 |
-| 2026 | 5,250 | 24 (partial) |
-
-2023 was the worst year — not 2022. 2021 was deceptively calm with only 13 recorded events.
-
-### Top 10 Companies by Total Layoffs
-
-| Company | Total Laid Off |
-|---|---|
-| Amazon | 58,124 |
-| Intel | 43,115 |
-| Oracle | 31,294 |
-| Microsoft | 30,055 |
-| Meta | 27,500 |
-| Salesforce | 16,525 |
-| Cisco | 14,521 |
-| Tesla | 14,500 |
-| Google | 13,697 |
-| Dell | 12,650 |
-
-These are not struggling companies — they over-hired during the 2020–2021 boom and corrected hard.
-
-### Industries Hit Hardest
-
-| Industry | Total Laid Off | Avg % Cut |
-|---|---|---|
-| Retail | 106,076 | 23.7% |
-| Hardware | 94,957 | 9.9% |
-| Consumer | 86,870 | 23.1% |
-| Transportation | 66,002 | 23.7% |
-| Finance | 58,634 | 21.5% |
-| Food | 51,998 | 28.8% |
-| Healthcare | 38,904 | 28.6% |
-
-Food and Healthcare cut deepest proportionally — structural distress, not just market adjustment.
-
-### Layoffs by Country (Top 5)
-
-| Country | Total Laid Off | Events |
-|---|---|---|
-| United States | 616,044 | 1,743 |
-| India | 65,584 | 261 |
-| Germany | 31,588 | 95 |
-| United Kingdom | 23,264 | 84 |
-| Netherlands | 21,575 | 19 |
-
-The US accounts for 70% of all recorded layoffs.
-
-### Layoffs by Funding Stage
-
-| Stage | Total Laid Off |
-|---|---|
-| Post-IPO | 544,507 |
-| Unknown | 78,588 |
-| Acquired | 71,753 |
-| Series B | 30,822 |
-| Series C | 27,412 |
-
-Post-IPO companies account for 62% of all layoffs — the correction hit public companies hardest.
-
-### Well-Funded Companies That Still Shut Down
-
-344 companies laid off 100% of their workforce. Top examples:
-- Britishvolt (EV, UK) — $2.4B raised, complete shutdown
-- Quibi (Media, US) — $1.8B raised, complete shutdown
-- Fisker (EV, US) — $1.7B raised, complete shutdown
-
-Funding does not guarantee survival.
-
----
-
-## How to Run
-
-1. Install MySQL Community Server and MySQL Workbench (free at dev.mysql.com)
-2. Open Workbench and connect to your local instance
-3. Run 01_create_database.sql to create the database and table
-4. Import layoffs.csv into layoffs_raw
-5. Run 02_data_cleaning.sql to clean the data
-6. Run 03_analysis_queries.sql to see all 12 query results
-
----
+1. Install MySQL Server and MySQL Workbench.
+2. Run `01_create_database.sql`.
+3. Import `layoffs.csv` into the raw table, following the column order in the SQL setup.
+4. Run `02_data_cleaning.sql`.
+5. Run `03_analysis_queries.sql`.
 
 ## Author
 
-**Salahuddin K M** — Data Analyst
-Portfolio: erskm.github.io | GitHub: github.com/ErSKM
-
+**Salahuddin K M** · [Portfolio](https://erskm.github.io) · [GitHub](https://github.com/ErSKM)
